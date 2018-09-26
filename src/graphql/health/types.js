@@ -3,7 +3,7 @@ const healthTypes = `
     pong: String!
   }
 
-  type Query {
+  extend type Query {
     ping: Ping
   }
 `;

@@ -13,9 +13,9 @@ module.exports = {
     port: 3000,
   },
   token: {
-    audience: 'Coaches',
-    expirationTime: 14 * 24 * 3600 * 1000, // 14 days,
-    issuer: 'SpexxNasty',
+    audience: 'worldpins',
+    expiration: 14 * 24 * 3600 * 1000, // 14 days,
+    issuer: 'worldpins',
     secret: 'BanaanSchilPeer98',
   },
 };
