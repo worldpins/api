@@ -1,10 +1,15 @@
 const authenticationTypes = `
-  type User {
-    email: String!
+  type UserProfile {
     firstName: String
     lastName: String
     dateOfBirth: String
-    country: String
+  }
+
+  type User {
+    id: String!
+    email: String!
+    profile: UserProfile
+    roles: [String]
   }
 
   type Query {
@@ -36,30 +41,48 @@ const authenticationTypes = `
     authToken: String!
   }
 
-  input UpdateUserInput {
-    email: String
+  input UpdateUserProfileInput {
+    id: String!
     firstName: String
     lastName: String
     dateOfBirth: String
-    country: String
-    newPassword: String
-    confirmNewPassword: String
-    oldPassword: String
+  }
+
+  input UpdateUserInput {
+    id: String!
+    email: String
+    profile: UpdateUserProfileInput!
+  }
+
+  type UpdateUserProfilePayload {
+    firstName: String
+    lastName: String
+    dateOfBirth: String
   }
 
   type UpdateUserPayload {
     email: String
-    firstName: String
-    lastName: String
-    dateOfBirth: String
-    country: String
+    profile: UpdateUserProfilePayload
+    roles: [String]
   }
 
   type RefreshTokenPayload {
     authToken: String
   }
 
+  input ChangePasswordInput {
+    id: String!
+    newPassword: String!
+    confirmNewPassword: String!
+    oldPassword: String!
+  }
+
+  type ChangePasswordPayload {
+    success: Boolean!
+  }
+
   type Mutation {
+    changePassword(input: ChangePasswordInput): ChangePasswordPayload
     login(input: LoginInput): LoginPayload
     refreshToken: RefreshTokenPayload
     register(input: RegisterInput): RegisterPayload

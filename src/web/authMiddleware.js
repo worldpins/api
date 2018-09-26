@@ -38,9 +38,8 @@ const tokenRefresher = async (endpoint, oldAuthToken, ctx) => {
  * @returns {?string} Returns null if no valid authorization header is present,
  * returns the header value (without schema) otherwise.
  */
-const getAuthToken = (ctx) => {
+exports.getAuthToken = (authorizationHeader) => {
   // Get the authorization header from the request object
-  const authorizationHeader = ctx.headers.authorization;
   if (authorizationHeader) {
     // The header should be of the format "bearer <auth-token>". Strip
     // the first part.
@@ -51,7 +50,7 @@ const getAuthToken = (ctx) => {
     // The second part should contain the auth token.
     return parts[1];
   }
-  return ctx.query.authToken;
+  return null;
 };
 
 /**
@@ -60,7 +59,7 @@ const getAuthToken = (ctx) => {
  */
 exports.authMiddleWare = async (ctx, next) => {
   // Get the token from the request headers
-  let authToken = getAuthToken(ctx);
+  let authToken = exports.getAuthToken(ctx);
   if (!authToken) {
     ctx.throw(401, 'Invalid auth token');
     // throw boom.forbidden('Invalid auth token', { type: 'INVALID_AUTH_TOKEN' });

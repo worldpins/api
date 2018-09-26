@@ -3,6 +3,9 @@ const koaBodyParser = require('koa-bodyparser');
 const koaHelmet = require('koa-helmet');
 const koaCors = require('koa-cors');
 
+const { getAuthToken } = require('./authMiddleware');
+const { verifyAuthToken } = require('../utils/tokenizer');
+
 function makeEnableCorsMiddleware() {
   // Adds CORS header middleware
   const options = {

@@ -2,25 +2,22 @@ const authenticationService = require('../../services/authenticationService');
 
 const authenticationResolvers = {
   Query: {
-    me: (obj, args, context, info) => {
-      console.log(context);
-    },
+    me: async (obj, args, { token }) => authenticationService.getMe(token),
   },
   Mutation: {
+    changePassword: async (obj, { input }, { token }) => authenticationService.changePassword(input, token),
     login: async (obj, { input }) => {
       const authToken = await authenticationService.login(input);
       return { authToken };
     },
-    refreshToken: (obj, args, context) => {
-      console.log(context);
+    refreshToken: () => {
+      throw new Error('Not implemented');
     },
     register: async (obj, { input }) => {
       const authToken = await authenticationService.register(input);
       return { authToken };
     },
-    updateUser: (obj, { input }) => {
-      console.log(input);
-    },
+    updateUser: (obj, { input }, { token }) => authenticationService.updateUser(input, token),
   },
 };
 
