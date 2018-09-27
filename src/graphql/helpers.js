@@ -13,7 +13,8 @@ exports.authMiddleware = async ({ ctx }) => {
   } catch (err) {
     if (err.name === 'TokenExpiredError') {
       token = await tokenRefresher(token);
-      decodedToken = await verifyAuthToken(token);
+      ctx.set('authorization', `bearer ${token}`);
+      decodedToken = await verifyAuthToken(getAuthToken(token));
     }
   }
   return { token: decodedToken, undecodedToken: token };
