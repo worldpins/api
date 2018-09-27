@@ -2,7 +2,6 @@ const config = require('config');
 
 const makeServer = require('./src/graphql');
 const { configureLogger, makeLogger } = require('./src/utils/logger');
-const installMiddlewares = require('./src/web/installMiddlewares');
 const dataController = require('./src/data');
 
 configureLogger();
@@ -16,7 +15,6 @@ async function startApplication() {
   try {
     await dataController.migrate();
     const app = await makeServer();
-    installMiddlewares(app);
     app.listen(PORT, IP, () => {
       log.info('info', `Server listening on ${IP}:${PORT} in ${NODE_ENV} mode`);
     });

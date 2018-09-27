@@ -8,23 +8,12 @@ const TOKEN_EXPIRATION = config.get('token.expiration');
 const TOKEN_ISSUER = config.get('token.issuer');
 const TOKEN_AUDIENCE = config.get('token.audience');
 
-const logger = makeLogger('tokenizer');
+const logger = makeLogger('Tokenizer');
 
 function logToken(token) {
   return `${token.substr(0, 4)}...${token.substr(-4)}`;
 }
 
-/**
- * Creates a new auth token, signed with AUTH_TOKEN_SECRET,
- * containing the given data.
- * The created token is valid for AUTH_TOKEN_EXPIRATION_INTERVAL,
- * and can be refreshed during AUTH_TOKEN_REFRESH_EXPIRATION_INTERVAL.
- *
- * @param {string} userId - userId to store in the token.
- * @param {string[]} userRoles - userRoles to store in the token
- *
- * @returns {Promise<string, Error>} The constructed token.
- */
 exports.makeAuthToken = function makeAuthToken(userId, userRoles = []) {
   const tokenData = {
     refreshExpiresIn: Math.floor((Date.now() + TOKEN_EXPIRATION)),
@@ -51,15 +40,6 @@ exports.makeAuthToken = function makeAuthToken(userId, userRoles = []) {
   });
 };
 
-/**
- * Verify the given auth token.
- *
- * @param {string} token - A valid auth token.
- * @param {Object} options - set option "forRefresh" to true to consider
- * the token auth valid if it is refreshable, even if it is expired.
- *
- * @returns {Promise<Object, Error>} The public data stored in the auth token. Contains: userId, issuedAt.
- */
 exports.verifyAuthToken = function verifyToken(token, options = {}) {
   return new Promise((resolve, reject) => {
     const jwtOptions = { audience: TOKEN_AUDIENCE, issuer: TOKEN_ISSUER, subject: 'auth' };

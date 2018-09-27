@@ -1,13 +1,16 @@
 const bcrypt = require('bcryptjs');
 const config = require('config');
+const { makeLogger } = require('./logger');
+
+const logger = makeLogger('PWHasher');
 
 const PW_SALT = config.get('password.salt');
 
-exports.hash = function hash(string, logger = null) {
+exports.hash = function hash(string) {
   return new Promise((resolve, reject) => {
     bcrypt.hash(string, PW_SALT, (err, stringHash) => {
       if (err) {
-        if (logger) logger.log('warn', 'PW HASH FAILED', err);
+        logger.warn(`PW HASH FAILED ${err}`);
         return reject(err);
       }
       return resolve(stringHash);
@@ -15,11 +18,11 @@ exports.hash = function hash(string, logger = null) {
   });
 };
 
-exports.checkPw = function checkPw(password, pwhash, logger = null) {
+exports.checkPw = function checkPw(password, pwhash) {
   return new Promise((resolve, reject) => {
     bcrypt.compare(password, pwhash, (err, res) => {
       if (err) {
-        if (logger) logger.log('info', 'CHECK PW FAILED', err);
+        logger.info(`CHECK PW FAILED ${err}`);
         return reject(err);
       }
       return resolve(res);

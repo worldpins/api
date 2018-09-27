@@ -10,14 +10,15 @@ const authenticationResolvers = {
       const authToken = await authenticationService.login(input);
       return { authToken };
     },
-    refreshToken: () => {
-      throw new Error('Not implemented');
+    refreshToken: async (obj, args, { undecodedToken: oldToken }) => {
+      const authToken = await authenticationService.refreshToken(oldToken);
+      return { authToken };
     },
     register: async (obj, { input }) => {
       const authToken = await authenticationService.register(input);
       return { authToken };
     },
-    updateUser: (obj, { input }, { token }) => authenticationService.updateUser(input, token),
+    updateUser: async (obj, { input }, { token }) => authenticationService.updateUser(input, token),
   },
 };
 

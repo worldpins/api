@@ -1,9 +1,13 @@
 const uuid = require('uuid/v4');
+const { ApolloError, AuthenticationError, UserInputError } = require('apollo-server-koa');
 
 const dataController = require('../data');
 const { checkPw, hash } = require('../utils/pwHasher');
 const { makeAuthToken, verifyAuthToken } = require('../utils/tokenizer');
 const { makeLogger } = require('../utils/logger');
+const {
+  USER_NOT_FOUND, USER_ALREADY_EXISTS, TOKEN_ID_MISSMATCH, USER_LOCKED,
+} = require('../constants/authentication');
 
 const logger = makeLogger('authenticationService');
 
@@ -12,14 +16,35 @@ class AuthenticationService {
     this.dataController = dataController.knex;
   }
 
-  async getMe(token) {
-    if (!token) {
-      throw new Error('You need to be authorised to get your profile');
+  async refreshToken(oldToken) {
+    if (!oldToken) {
+      throw new AuthenticationError('Must authenticate.');
     }
 
-    const decodedToken = await verifyAuthToken(token);
+    let decodedToken;
+    try {
+      decodedToken = await verifyAuthToken(oldToken, { forRefresh: true });
+    } catch (err) {
+      throw new AuthenticationError('Must authenticate.');
+    }
+    // Fetch user data of the user stored in given token to refresh.
+    const user = this.dataController('users').select('email', 'locked', 'id', 'roles');
+    if (!user) {
+      throw new ApolloError(`User with "${decodedToken.userId}" can't be found.`, USER_NOT_FOUND);
+    }
+
+    // If the user is locked, we forbid refreshing the token.
+    if (user.locked) {
+      throw new ApolloError(`User with email "${user.email}" has been locked.`, USER_LOCKED);
+    }
+
+    // Build and return the new token.
+    return makeAuthToken(user.id, user.roles);
+  }
+
+  async getMe(decodedToken) {
     if (!decodedToken) {
-      throw new Error('Invalid token');
+      throw new AuthenticationError('Must be authenticated.');
     }
 
     logger.info(`Getting user and profile for ${decodedToken.userId}`);
@@ -30,7 +55,7 @@ class AuthenticationService {
       .first();
 
     if (!user) {
-      throw new Error('User not found');
+      throw new ApolloError(`User with "${decodedToken.userId}" can't be found.`, USER_NOT_FOUND);
     }
 
     return {
@@ -48,18 +73,13 @@ class AuthenticationService {
 
   async changePassword({
     id, oldPassword, newPassword, confirmNewPassword,
-  }, token) {
-    if (!token) {
-      throw new Error('You need to be authorised to get your profile');
-    }
-
-    const decodedToken = await verifyAuthToken(token);
+  }, decodedToken) {
     if (!decodedToken) {
-      throw new Error('Invalid token');
+      throw new AuthenticationError('Must be authenticated.');
     }
 
     if (id !== decodedToken.userId) {
-      throw new Error("You are trying to modify someone else's profile");
+      throw new ApolloError("You are trying to modify someone else's password.", TOKEN_ID_MISSMATCH);
     }
 
     const user = await this.dataController('users')
@@ -68,15 +88,15 @@ class AuthenticationService {
       .first();
 
     if (!user) {
-      throw new Error('user not found');
+      throw new ApolloError(`User with "${decodedToken.userId}" can't be found.`, USER_NOT_FOUND);
     }
 
     if (!await checkPw(oldPassword, user.passwordHash)) {
-      throw new Error('Incorrect password');
+      throw new UserInputError('Incorrect password.');
     }
 
     if (newPassword !== confirmNewPassword) {
-      throw new Error("Passwords don't match");
+      throw new UserInputError("Passwords don't match.");
     }
 
     const newPasswordHash = await hash(newPassword);
@@ -95,11 +115,11 @@ class AuthenticationService {
       .first();
 
     if (!user) {
-      throw new Error("User with this email can't be found");
+      throw new ApolloError(`User with email "${email}" can't be found.`, USER_NOT_FOUND);
     }
 
     if (user.locked) {
-      throw new Error('This account is locked');
+      throw new ApolloError(`User with email "${email}" has been locked.`, USER_LOCKED);
     }
 
     if (!await checkPw(password, user.passwordHash)) {
@@ -107,7 +127,7 @@ class AuthenticationService {
         failed_login_attempts: user.failedLoginAttempts + 1,
         last_failed_login: new Date(),
       }).where('id', user.id);
-      throw new Error('Invalid credentials');
+      throw new UserInputError('Invalid password.');
     }
 
     await this.dataController('users').update({
@@ -123,19 +143,13 @@ class AuthenticationService {
     id, email, profile: {
       id: profileId, firstName, lastName, dateOfBirth,
     },
-  }, token) {
-    if (!token) {
-      throw new Error('Unauthorized');
-    }
-
-    const decodedToken = await verifyAuthToken(token);
-
+  }, decodedToken) {
     if (!decodedToken) {
-      throw new Error('Invalid token');
+      throw new AuthenticationError('Must be authenticated.');
     }
 
     if (id !== decodedToken.userId) {
-      throw new Error("You are trying to modify someone else's profile");
+      throw new ApolloError("You are trying to modify someone else's profile.", TOKEN_ID_MISSMATCH);
     }
 
     // TODO: check if valid email
@@ -163,14 +177,14 @@ class AuthenticationService {
     email, password, confirmPassword, profile,
   }) {
     if (password !== confirmPassword) {
-      throw new Error("password and confirmPassword don't match");
+      throw new UserInputError("password and confirmPassword don't match.");
     }
 
     // TODO: check if email is valid
 
     const dbUser = await this.dataController('users').select('id').where('email', email).first();
     if (dbUser) {
-      throw new Error('User with this email already exists');
+      throw new ApolloError(`A user with email "${email}" already exists.`, USER_ALREADY_EXISTS);
     }
 
     const passwordHash = await hash(password);
