@@ -18,11 +18,17 @@ exports.up = function up(knex) {
       table.timestamp('updated_on').comment('Date the user was last updated.');
       table.timestamp('deleted_on').comment('Date the user was soft-deleted.');
       table.uuid('map_id').references('id').inTable('maps');
+    })
+    .createTable('userHasMaps', (table) => {
+      table.uuid('user_id').references('id').inTable('users');
+      table.uuid('map_id').references('id').inTable('maps');
+      table.integer('rights').comment('0 means view, 1 means edit (making pins), 2 means delete (pins), 3 means admin.');
     });
 };
 
 exports.down = function down(knex) {
   return knex.schema
     .dropTable('pins')
+    .dropTable('userHasMaps')
     .dropTable('maps');
 };
