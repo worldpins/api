@@ -4,19 +4,25 @@ exports.up = function up(knex) {
       table.uuid('id').primary().comment('Primary (id) entails an index.');
       table.string('name');
       table.text('comment');
-      table.specificType('initial_area', 'POINT').defaultTo(knex.raw('POINT (37.3875, -122.0575)'));
+      table.specificType('initial_area', 'POINT');
       table.timestamp('created_on').comment('Date the user was created.');
+      table.string('created_by').references('id').inTable('users');
       table.timestamp('updated_on').comment('Date the user was last updated.');
+      table.string('updated_by').references('id').inTable('users');
       table.timestamp('deleted_on').comment('Date the user was soft-deleted.');
+      table.string('deleted_by').references('id').inTable('users');
     })
     .createTable('pins', (table) => {
       table.uuid('id').primary().comment('Primary (id) entails an index.');
       table.string('name');
       table.text('comment');
-      table.specificType('coordinates', 'POINT').defaultTo(knex.raw('POINT (37.3875, -122.0575)'));
+      table.specificType('coordinates', 'POINT');
       table.timestamp('created_on').comment('Date the user was created.');
+      table.string('created_by').references('id').inTable('users');
       table.timestamp('updated_on').comment('Date the user was last updated.');
+      table.string('updated_by').references('id').inTable('users');
       table.timestamp('deleted_on').comment('Date the user was soft-deleted.');
+      table.string('deleted_by').references('id').inTable('users');
       table.uuid('map_id').references('id').inTable('maps');
     })
     .createTable('userHasMaps', (table) => {

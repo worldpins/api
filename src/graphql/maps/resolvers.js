@@ -2,7 +2,11 @@
 
 const mapResolvers = {
   Query: {
-    ping: () => ({ pong: 'Dong' }),
+    maps: () => ({ pong: 'Dong' }),
+    map: () => ({ pong: 'Dong' }),
+  },
+  Mutation: {
+    createMap: () => ({ pong: 'Dong' }),
   },
 };
 
