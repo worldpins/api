@@ -1,12 +1,12 @@
-// const mapService = require('../../services/mapService');
+const mapService = require('../../services/mapService');
 
 const mapResolvers = {
   Query: {
-    maps: () => ({ pong: 'Dong' }),
-    map: () => ({ pong: 'Dong' }),
+    maps: async (obj, args, { token }) => mapService.getMaps(args, token),
+    map: async (obj, { id }, { token }) => mapService.getMap(id, token),
   },
   Mutation: {
-    createMap: () => ({ pong: 'Dong' }),
+    createMap: async (obj, { input }, { token }) => mapService.createMap(input, token),
   },
 };
 
