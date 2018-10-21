@@ -3,6 +3,7 @@ const { ApolloError, AuthenticationError, UserInputError } = require('apollo-ser
 
 const dataController = require('../data');
 const { makeLogger } = require('../utils/logger');
+const { MAP_NOT_FOUND } = require('../constants/maps');
 
 const logger = makeLogger('mapService');
 
@@ -46,7 +47,21 @@ class MapService {
     };
   }
 
-  // async getMap() {}
+  async getMap(id, decodedToken) {
+    if (!decodedToken) {
+      throw new AuthenticationError('Must authenticate.');
+    }
+
+    const map = await this.dataController('maps')
+      .select('id', 'name', 'comment', 'initial_area as initialArea')
+      .where('id', id);
+
+    if (!map) {
+      throw new ApolloError(`map with id "${id}" can't be found.`, MAP_NOT_FOUND);
+    }
+
+    return map;
+  }
 
   async getMaps({
     from = 0, limit = 10, searchField, search, sortField, sortDirection,

@@ -8,10 +8,27 @@ const mapParams = `
 `;
 
 const mapTypes = `
+  type TemplatePin {
+    id: String!
+    name: String
+    comment: String
+    fields: JSON
+  }
+
+  type Pin {
+    id: String!
+    name: String
+    comment: String
+    location: LocationInput
+    data: JSON
+    templatePin: TemplatePin
+  }
+
   type Map {
     id: String!
     name: String
     comment: String
+    pins: [Pin]
   }
 
   type MapResult {
