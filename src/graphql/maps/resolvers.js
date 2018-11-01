@@ -8,12 +8,17 @@ const mapResolvers = {
   },
   Map: {
     async pins(map, args, { token }) {
-      console.localStorage('fetching pins for ', map.id);
       return pinService.getPins(map.id, token);
     },
   },
   Mutation: {
     createMap: async (obj, { input }, { token }) => mapService.createMap(input, token),
+    map: async (obj, { id }, { token }) => mapService.getMap(id, token),
+  },
+  MutationMap: {
+    async createPin(map, { input: pin }) {
+      return pinService.createPin(map.id, pin);
+    },
   },
 };
 

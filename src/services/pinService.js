@@ -1,9 +1,11 @@
 const dataController = require('../data');
-const { makeLogger } = require('../utils/logger');
+// const { makeLogger } = require('../utils/logger');
+const uuid = require('uuid/v4');
 
-const logger = makeLogger('pinService');
+// TODO: log
+// const logger = makeLogger('pinService');
 
-const pinFields = ['id', 'name', 'coordinates', 'comment', 'data'];
+// const pinFields = ['id', 'name', 'coordinates', 'comment', 'data'];
 
 class MapService {
   constructor() {
@@ -14,6 +16,32 @@ class MapService {
     return this.dataController('pins')
       .select('pins.id', 'pins.name', 'pins.coordinates', 'pins.comment', 'pins.data')
       .where('pins.map_id', mapId);
+  }
+
+  async createPin(mapId, { coordinates, template, ...rest }) {
+    // Prepare coordinates.
+    let dbCoordinates;
+    if (coordinates.latitude && coordinates.longitude) {
+      dbCoordinates = `(${coordinates.longitude}, ${coordinates.latitude})`;
+    }
+
+    // Create template if needed.
+    let templateId;
+    if (template) {
+      templateId = uuid();
+      await this.dataController('template_pins')
+        .insert({ ...template, id: templateId });
+    }
+
+    // Make and return pin.
+    return this.dataController('pins')
+      .insert({
+        ...rest,
+        id: uuid(),
+        coordinates: dbCoordinates,
+        template_pins_id: templateId,
+        map_id: mapId,
+      });
   }
 }
 
