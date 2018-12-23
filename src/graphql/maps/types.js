@@ -1,8 +1,8 @@
 const mapParams = `
   search: String
   searchField: String
-  from: String
-  limit: String
+  from: Int
+  limit: Int
   sortField: String
   sortDirection: String
 `;
