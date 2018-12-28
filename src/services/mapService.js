@@ -61,8 +61,9 @@ class MapService {
       throw new ApolloError(`map with id "${id}" can't be found.`, MAP_NOT_FOUND);
     }
 
-    const { initialArea: { x, y }, ...rest } = map;
-    return { ...rest, initialArea: { longitude: x, latitude: y } };
+    // Default to Brussels.
+    const { initialArea = { x: 4.34878, y: 50.85045 }, ...rest } = map;
+    return { ...rest, initialArea: { longitude: initialArea.x, latitude: initialArea.y } };
   }
 
   async getMaps({
@@ -113,8 +114,8 @@ class MapService {
       .where('userHasMaps.user_id', decodedToken.userId)
       .innerJoin('userHasMaps', 'maps.id', 'userHasMaps.map_id');
     return {
-      items: maps.map(({ initialArea: { x, y }, ...rest }) =>
-        ({ ...rest, initialArea: { longitude: x, latitude: y } })),
+      items: maps.map(({ initialArea = { x: 4.34878, y: 50.85045 }, ...rest }) =>
+        ({ ...rest, initialArea: { longitude: initialArea.x, latitude: initialArea.y } })),
       totalCount,
       filteredCount: filteredCount || totalCount,
     };

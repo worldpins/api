@@ -64,7 +64,7 @@ const mapTypes = `
     name: String
     comment: String
     createdBy: User
-    initial_area: Location
+    initialArea: Location
     updatedBy: User
     pins: [Pin]
   }
