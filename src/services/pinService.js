@@ -16,7 +16,6 @@ class MapService {
     const pins = await this.dataController('pins')
       .select('pins.id', 'pins.name', 'pins.coordinates', 'pins.comment', 'pins.data')
       .where('pins.map_id', mapId);
-    console.log(pins);
     return pins.map(({ coordinates, ...rest }) => ({
       ...rest,
       location: {
