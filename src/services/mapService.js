@@ -63,7 +63,11 @@ class MapService {
 
     // Default to Brussels.
     const { initialArea = { x: 4.34878, y: 50.85045 }, ...rest } = map;
-    return { ...rest, initialArea: { longitude: initialArea.x, latitude: initialArea.y } };
+    let area = initialArea;
+    if (!initialArea) {
+      area = { x: 4.34878, y: 50.85045 };
+    }
+    return { ...rest, initialArea: { longitude: area.x, latitude: area.y } };
   }
 
   async getMaps({
@@ -114,8 +118,16 @@ class MapService {
       .where('userHasMaps.user_id', decodedToken.userId)
       .innerJoin('userHasMaps', 'maps.id', 'userHasMaps.map_id');
     return {
-      items: maps.map(({ initialArea = { x: 4.34878, y: 50.85045 }, ...rest }) =>
-        ({ ...rest, initialArea: { longitude: initialArea.x, latitude: initialArea.y } })),
+      items: maps.map(({ initialArea, ...rest }) => {
+        let area = initialArea;
+        if (!initialArea) {
+          area = { x: 4.34878, y: 50.85045 };
+        }
+        return {
+          ...rest,
+          initialArea: { longitude: area.x, latitude: area.y },
+        };
+      }),
       totalCount,
       filteredCount: filteredCount || totalCount,
     };

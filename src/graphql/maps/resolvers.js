@@ -8,7 +8,9 @@ const mapResolvers = {
   },
   Map: {
     async pins(map, args, { token }) {
-      return pinService.getPins(map.id, token);
+      const pins = await pinService.getPinsForMap(map.id, token);
+      console.log('RESULT', pins);
+      return pins;
     },
   },
   Mutation: {
