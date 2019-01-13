@@ -10,6 +10,9 @@ const mapResolvers = {
     async pins(map, args, { token }) {
       return pinService.getPinsForMap(map.id, token);
     },
+    async templatePins(map, args, { token }) {
+      return pinService.getTemplatePinsForMap(map.id, token);
+    },
   },
   Mutation: {
     createMap: async (obj, { input }, { token }) => mapService.createMap(input, token),

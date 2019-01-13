@@ -12,6 +12,12 @@ class MapService {
     this.dataController = dataController.knex;
   }
 
+  async getTemplatePinsForMap(mapId) {
+    return this.dataController('template_pins')
+      .select('id', 'name', 'comment', 'fields')
+      .where('map_id', mapId);
+  }
+
   async getPinsForMap(mapId) {
     const pins = await this.dataController('pins')
       .select('pins.id', 'pins.name', 'pins.coordinates', 'pins.comment', 'pins.data')
