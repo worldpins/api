@@ -11,6 +11,7 @@ const mapResolvers = {
       return pinService.getPinsForMap(map.id, token);
     },
     async templatePins(map, args, { token }) {
+      console.log('getting templates for ', map.id);
       return pinService.getTemplatePinsForMap(map.id, token);
     },
   },
@@ -21,6 +22,9 @@ const mapResolvers = {
   MutationMap: {
     async createPin(map, { input: pin }) {
       return pinService.createPin(map.id, pin);
+    },
+    async createTemplatePin(map, { input: templatePin }) {
+      return pinService.createTemplatePin(map.id, templatePin);
     },
   },
 };
