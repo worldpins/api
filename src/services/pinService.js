@@ -33,7 +33,7 @@ class MapService {
 
   async createTemplatePin(mapId, { fields, name, comment }) {
     // Make and return pin.
-    const query = this.dataController('template_pins')
+    return this.dataController('template_pins')
       .insert({
         id: uuid(),
         fields: JSON.stringify(fields),
@@ -41,7 +41,6 @@ class MapService {
         comment,
         map_id: mapId,
       });
-    console.log(query.toQuery());
   }
 
   async createPin(mapId, { coordinates, template, ...rest }) {
