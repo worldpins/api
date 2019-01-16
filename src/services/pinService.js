@@ -43,19 +43,11 @@ class MapService {
       });
   }
 
-  async createPin(mapId, { coordinates, template, ...rest }) {
+  async createPin(mapId, { coordinates, templatePinId, ...rest }) {
     // Prepare coordinates.
     let dbCoordinates;
     if (coordinates.latitude && coordinates.longitude) {
       dbCoordinates = `(${coordinates.longitude}, ${coordinates.latitude})`;
-    }
-
-    // Create template if needed.
-    let templateId;
-    if (template) {
-      templateId = uuid();
-      await this.dataController('template_pins')
-        .insert({ ...template, id: templateId });
     }
 
     // Make and return pin.
@@ -64,7 +56,7 @@ class MapService {
         ...rest,
         id: uuid(),
         coordinates: dbCoordinates,
-        template_pins_id: templateId,
+        template_pin_id: templatePinId,
         map_id: mapId,
       });
   }

@@ -94,7 +94,7 @@ const mapTypes = `
     coordinates: LocationInput!
     comment: String
     data: JSON
-    templatePin: String
+    templatePinId: String
   }
 
   type CreatePinPayload {
