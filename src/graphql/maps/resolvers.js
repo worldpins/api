@@ -5,6 +5,7 @@ const mapResolvers = {
   Query: {
     maps: async (obj, args, { token }) => mapService.getMaps(args, token),
     map: async (obj, { id }, { token }) => mapService.getMap(id, token),
+    pin: async (obj, { id }, { token }) => pinService.getPin(id, token),
   },
   Map: {
     async pins(map, args, { token }) {
@@ -22,9 +23,15 @@ const mapResolvers = {
     async createPin(map, { input: pin }) {
       return pinService.createPin(map.id, pin);
     },
+    async updatePin(map, { input: pin }) {
+      return pinService.updatePin(map.id, pin);
+    },
     async createTemplatePin(map, { input: templatePin }) {
       return pinService.createTemplatePin(map.id, templatePin);
     },
+    async updateTemplatePin(map, { input: templatePin }) {
+      return pinService.updateTemplatePin(map.id, templatePin);
+    }
   },
 };
 

@@ -22,6 +22,13 @@ const mapTypes = `
     fields: JSON
   }
 
+  type updateTemplatePinPaylaod {
+    id: String!
+    name: String
+    comment: String
+    fields: JSON
+  }
+
   type Pin {
     id: String!
     name: String
@@ -89,7 +96,23 @@ const mapTypes = `
     fields: JSON
   }
 
+  input updateTemplatePinInput {
+    id: String!
+    name: String!
+    comment: String
+    fields: JSON
+  }
+
   input createPinInput {
+    name: String!
+    coordinates: LocationInput!
+    comment: String
+    data: JSON
+    templatePinId: String
+  }
+
+  input updatePinInput {
+    id: String!
     name: String!
     coordinates: LocationInput!
     comment: String
@@ -106,11 +129,22 @@ const mapTypes = `
     template: TemplatePin
   }
 
+  type UpdatePinPayload {
+    id: String
+    name: String
+    coordinates: Location
+    comment: String
+    data: JSON
+    template: TemplatePin
+  }
+
   type MutationMap {
     id: String!
     initialArea: Location
     createPin(input: createPinInput): CreatePinPayload
+    updatePin(input: updatePinInput): UpdatePinPayload
     createTemplatePin(input: createTemplatePinInput): CreateTemplatePinPayload
+    updateTemplatePin(input: updateTemplatePinInput): UpdateTemplatePinPayload
   }
 
   extend type Mutation {
