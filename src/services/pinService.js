@@ -43,6 +43,60 @@ class MapService {
       });
   }
 
+  async getPin(id, decodedToken) {
+    if (!decodedToken) {
+      throw new AuthenticationError('Must authenticate.');
+    }
+
+    const pin = await this.dataController('pin')
+      .select(
+        'pins.id', 'pins.name', 'pins.comment', 'pins.coordinates', 'pins.data',
+      )
+      .where('id', id)
+      .first();
+
+    if (!pin) {
+      throw new ApolloError(`map with id "${id}" can't be found.`, MAP_NOT_FOUND);
+    }
+
+    return {
+      ...pin,
+      location: {
+        latitude: pin.coordinates && coordinates.y,
+        longitude: pin.coordinates && coordinates.x,
+      }
+    }
+  }
+
+  async createTemplatePin(mapId, { id, fields, name, comment }) {
+    // Make and return pin.
+    return this.dataController('template_pins')
+      .update({
+        fields: JSON.stringify(fields),
+        name,
+        comment,
+        map_id: mapId,
+      }).where('id', id);
+  }
+
+  async updatePin(mapId, { id, coordinates, templatePinId, ...rest }) {
+    // Prepare coordinates.
+    let dbCoordinates;
+    if (coordinates.latitude && coordinates.longitude) {
+      dbCoordinates = `(${coordinates.longitude}, ${coordinates.latitude})`;
+    }
+
+    // Make and return pin.
+    return this.dataController('pins')
+      .update({
+        ...rest,
+        id: uuid(),
+        coordinates: dbCoordinates,
+        template_pin_id: templatePinId,
+        map_id: mapId,
+      }).where('id', id);
+  }
+
   async createPin(mapId, { coordinates, templatePinId, ...rest }) {
     // Prepare coordinates.
     let dbCoordinates;
