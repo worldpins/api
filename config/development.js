@@ -10,8 +10,8 @@ module.exports = {
   },
   server: {
     ip: '0.0.0.0',
-    port: 3000,
-    origin: 'http://localhost:3000/',
+    port: 3001,
+    origin: 'http://localhost:3001/',
   },
   token: {
     audience: 'worldpins',

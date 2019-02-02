@@ -22,7 +22,7 @@ const mapTypes = `
     fields: JSON
   }
 
-  type updateTemplatePinPaylaod {
+  type UpdateTemplatePinPayload {
     id: String!
     name: String
     comment: String
@@ -56,6 +56,7 @@ const mapTypes = `
   extend type Query {
     maps(${mapParams}): MapResult
     map(id: String!): Map
+    pin(id: String!): Pin
   }
 
   input LocationInput {
