@@ -49,9 +49,7 @@ class MapService {
     }
 
     const pin = await this.dataController('pin')
-      .select(
-        'pins.id', 'pins.name', 'pins.comment', 'pins.coordinates', 'pins.data',
-      )
+      .select('pins.id', 'pins.name', 'pins.comment', 'pins.coordinates', 'pins.data',)
       .where('id', id)
       .first();
 
@@ -64,11 +62,13 @@ class MapService {
       location: {
         latitude: pin.coordinates && coordinates.y,
         longitude: pin.coordinates && coordinates.x,
-      }
-    }
+      },
+    };
   }
 
-  async createTemplatePin(mapId, { id, fields, name, comment }) {
+  async createTemplatePin(mapId, {
+ id, fields, name, comment 
+}) {
     // Make and return pin.
     return this.dataController('template_pins')
       .update({
@@ -79,7 +79,9 @@ class MapService {
       }).where('id', id);
   }
 
-  async updatePin(mapId, { id, coordinates, templatePinId, ...rest }) {
+  async updatePin(mapId, {
+ id, coordinates, templatePinId, ...rest 
+}) {
     // Prepare coordinates.
     let dbCoordinates;
     if (coordinates.latitude && coordinates.longitude) {

@@ -70,6 +70,49 @@ class MapService {
     return { ...rest, initialArea: { longitude: area.x, latitude: area.y } };
   }
 
+  async uploadMap({ map }, decodedToken) {
+    if (!decodedToken) {
+      throw new AuthenticationError('Must authenticate.');
+    }
+
+    await this.dataController.transaction(async (trx) => {
+      const mapId = uuid();
+      await trx('maps').insert({
+        id: mapId,
+        name: map.name,
+      });
+
+      const [templatePin] = map.templatePins;
+      const templatePinId = uuid();
+      await trx('template_pins').insert({
+        id: templatePinId,
+        fields: JSON.stringify(templatePin.fields),
+        name: templatePin.name,
+        map_id: mapId,
+      });
+      const promises = [];
+      for (let i = 0; i < map.pins.length; i += 1) {
+        let dbCoordinates;
+        const { coordinates, data, name } = map.pin[i];
+        if (coordinates.latitude && coordinates.longitude) {
+          dbCoordinates = `(${coordinates.longitude}, ${coordinates.latitude})`;
+        }
+
+        // Make and return pin.
+        promises.push(trx('pins')
+          .insert({
+            name,
+            data: JSON.stringify(data),
+            id: uuid(),
+            coordinates: dbCoordinates,
+            template_pin_id: templatePinId,
+            map_id: mapId,
+          }));
+      }
+      await Promise.all(promises);
+    });
+  }
+
   async getMaps({
     from = 0, limit = 10, searchField, search, sortField, sortDirection,
   }, decodedToken) {
