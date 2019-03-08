@@ -18,6 +18,7 @@ const mapResolvers = {
   Mutation: {
     createMap: async (obj, { input }, { token }) => mapService.createMap(input, token),
     map: async (obj, { id }, { token }) => mapService.getMap(id, token),
+    uploadMap: async (obj, { map }, { token }) => mapService.uploadMap(map, token),
   },
   MutationMap: {
     async createPin(map, { input: pin }) {
@@ -31,7 +32,7 @@ const mapResolvers = {
     },
     async updateTemplatePin(map, { input: templatePin }) {
       return pinService.updateTemplatePin(map.id, templatePin);
-    }
+    },
   },
 };
 
