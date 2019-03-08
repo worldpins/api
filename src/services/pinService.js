@@ -1,6 +1,9 @@
+const uuid = require('uuid/v4');
+const { ApolloError, AuthenticationError } = require('apollo-server-koa');
+
 const dataController = require('../data');
 // const { makeLogger } = require('../utils/logger');
-const uuid = require('uuid/v4');
+const { MAP_NOT_FOUND } = require('../constants/maps');
 
 // TODO: log
 // const logger = makeLogger('pinService');
@@ -49,7 +52,7 @@ class MapService {
     }
 
     const pin = await this.dataController('pin')
-      .select('pins.id', 'pins.name', 'pins.comment', 'pins.coordinates', 'pins.data',)
+      .select('pins.id', 'pins.name', 'pins.comment', 'pins.coordinates', 'pins.data')
       .where('id', id)
       .first();
 
@@ -60,28 +63,15 @@ class MapService {
     return {
       ...pin,
       location: {
-        latitude: pin.coordinates && coordinates.y,
-        longitude: pin.coordinates && coordinates.x,
+        latitude: pin.coordinates && pin.coordinates.y,
+        longitude: pin.coordinates && pin.coordinates.x,
       },
     };
   }
 
-  async createTemplatePin(mapId, {
- id, fields, name, comment 
-}) {
-    // Make and return pin.
-    return this.dataController('template_pins')
-      .update({
-        fields: JSON.stringify(fields),
-        name,
-        comment,
-        map_id: mapId,
-      }).where('id', id);
-  }
-
   async updatePin(mapId, {
- id, coordinates, templatePinId, ...rest 
-}) {
+    id, coordinates, templatePinId, ...rest
+  }) {
     // Prepare coordinates.
     let dbCoordinates;
     if (coordinates.latitude && coordinates.longitude) {
