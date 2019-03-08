@@ -16,6 +16,7 @@ class DbInstance {
           database: config.get('database.name'),
           password: config.get('database.password'),
           user: config.get('database.user'),
+          port: config.get('database.port'),
         },
         migrations: {
           directory: './src/data/migrations',
