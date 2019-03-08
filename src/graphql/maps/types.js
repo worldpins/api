@@ -139,6 +139,10 @@ const mapTypes = `
     template: TemplatePin
   }
 
+  type UploadMapPayload {
+    id: String!
+  }
+
   type MutationMap {
     id: String!
     initialArea: Location
@@ -151,6 +155,7 @@ const mapTypes = `
   extend type Mutation {
     createMap(input: CreateMapInput): CreateMapPayload
     map(id: String!): MutationMap
+    uploadMap(map: JSON!): UploadMapPayload
   }
 `;
 
