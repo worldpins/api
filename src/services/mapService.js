@@ -70,16 +70,22 @@ class MapService {
     return { ...rest, initialArea: { longitude: area.x, latitude: area.y } };
   }
 
-  async uploadMap({ map }, decodedToken) {
+  async uploadMap(map, decodedToken) {
     if (!decodedToken) {
       throw new AuthenticationError('Must authenticate.');
     }
+    const mapId = uuid();
 
     await this.dataController.transaction(async (trx) => {
-      const mapId = uuid();
       await trx('maps').insert({
         id: mapId,
         name: map.name,
+      });
+
+      await trx('userHasMaps').insert({
+        map_id: mapId,
+        user_id: decodedToken.userId,
+        rights: 3,
       });
 
       const [templatePin] = map.templatePins;
@@ -90,10 +96,11 @@ class MapService {
         name: templatePin.name,
         map_id: mapId,
       });
+
       const promises = [];
       for (let i = 0; i < map.pins.length; i += 1) {
         let dbCoordinates;
-        const { coordinates, data, name } = map.pin[i];
+        const { location: coordinates, data, name } = map.pins[i];
         if (coordinates.latitude && coordinates.longitude) {
           dbCoordinates = `(${coordinates.longitude}, ${coordinates.latitude})`;
         }
@@ -111,6 +118,9 @@ class MapService {
       }
       await Promise.all(promises);
     });
+
+
+    return mapId;
   }
 
   async getMaps({
