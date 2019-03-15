@@ -36,6 +36,7 @@ const mapTypes = `
     location: Location
     data: JSON
     templatePin: TemplatePin
+    orderedFields: JSON
   }
 
   type Map {
@@ -141,6 +142,7 @@ const mapTypes = `
 
   type UploadMapPayload {
     id: String!
+    id: String
   }
 
   type MutationMap {
