@@ -4,7 +4,7 @@ module.exports = {
     name: 'worldpins',
     user: 'root',
     password: 'secret',
-    port: 5431,
+    port: 5432,
   },
   password: {
     salt: 10,
