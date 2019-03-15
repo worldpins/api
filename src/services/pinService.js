@@ -23,10 +23,15 @@ class MapService {
 
   async getPinsForMap(mapId) {
     const pins = await this.dataController('pins')
-      .select('pins.id', 'pins.name', 'pins.coordinates', 'pins.comment', 'pins.data')
+      .select('pins.id', 'pins.name', 'pins.coordinates', 'pins.comment', 'pins.data', 'template_pins.fields')
+      .join('template_pins', 'pins.template_pin_id', 'template_pins.id')
       .where('pins.map_id', mapId);
-    return pins.map(({ coordinates, ...rest }) => ({
+
+
+    return pins.map(({ coordinates, data, fields, ...rest }) => ({
       ...rest,
+      data,
+      orderedFields: fields.map((field) => data[field] && field).filter(Boolean),
       location: {
         latitude: coordinates && coordinates.y,
         longitude: coordinates && coordinates.x,
