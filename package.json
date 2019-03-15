@@ -5,7 +5,7 @@
   "main": "index.js",
   "node": ">=9.11.2",
   "scripts": {
-    "start": "",
+    "start": "NODE_ENV=production node server.js",
     "dev": "cross-env NODE_ENV=development nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -29,6 +29,7 @@
     "apollo-server-koa": "^2.0.0",
     "bcryptjs": "^2.4.3",
     "config": "2.0.1",
+    "dotenv": "^7.0.0",
     "graphql": "^0.13.2",
     "graphql-tools": "^3.1.1",
     "graphql-type-json": "0.2.1",

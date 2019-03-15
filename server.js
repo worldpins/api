@@ -1,8 +1,8 @@
-const config = require('config');
-
+const dotenv = require('dotenv').config();
 const makeServer = require('./src/graphql');
 const { configureLogger, makeLogger } = require('./src/utils/logger');
 const dataController = require('./src/data');
+const config = require('config');
 
 configureLogger();
 
