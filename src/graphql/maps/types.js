@@ -141,7 +141,6 @@ const mapTypes = `
   }
 
   type UploadMapPayload {
-    id: String!
     id: String
   }
 
