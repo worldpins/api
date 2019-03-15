@@ -1,6 +1,5 @@
 const Koa = require('koa');
 const { ApolloServer } = require('apollo-server-koa');
-const { introspectSchema } = require('graphql-tools');
 
 const { makeLogger } = require('../utils/logger');
 const { authMiddleware, formatError } = require('./helpers');
@@ -17,7 +16,7 @@ async function makeServer() {
     schema,
   });
   const app = new Koa();
-  server.applyMiddleware({ app });
+  server.applyMiddleware({ app, cors: true });
   log.info('Succesfully set up apollo server.');
   return app;
 }
