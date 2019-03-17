@@ -44,6 +44,7 @@ const mapTypes = `
     name: String
     comment: String
     initialArea: Location
+    published: Boolean
     pins: [Pin]
     templatePins: [TemplatePin]
   }
