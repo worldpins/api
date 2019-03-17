@@ -2,11 +2,11 @@ const uuid = require('uuid/v4');
 const { ApolloError, AuthenticationError } = require('apollo-server-koa');
 
 const dataController = require('../data');
-// const { makeLogger } = require('../utils/logger');
+const { makeLogger } = require('../utils/logger');
 const { MAP_NOT_FOUND } = require('../constants/maps');
 
 // TODO: log
-// const logger = makeLogger('pinService');
+const logger = makeLogger('pinService');
 
 // const pinFields = ['id', 'name', 'coordinates', 'comment', 'data'];
 
@@ -22,21 +22,27 @@ class MapService {
   }
 
   async getPinsForMap(mapId) {
-    const pins = await this.dataController('pins')
-      .select('pins.id', 'pins.name', 'pins.coordinates', 'pins.comment', 'pins.data', 'template_pins.fields')
-      .join('template_pins', 'pins.template_pin_id', 'template_pins.id')
-      .where('pins.map_id', mapId);
+    try {
+      const pins = await this.dataController('pins')
+        .select('pins.id', 'pins.name', 'pins.coordinates', 'pins.comment', 'pins.data', 'template_pins.fields')
+        .join('template_pins', 'pins.template_pin_id', 'template_pins.id')
+        .where('pins.map_id', mapId);
 
 
-    return pins.map(({ coordinates, data, fields, ...rest }) => ({
-      ...rest,
-      data,
-      orderedFields: fields.map((field) => data[field] && field).filter(Boolean),
-      location: {
-        latitude: coordinates && coordinates.y,
-        longitude: coordinates && coordinates.x,
-      },
-    }));
+      return pins.map(({ coordinates, data, fields, ...rest }) => ({
+        ...rest,
+        data,
+        orderedFields: fields.map((field) => data[field] && field).filter(Boolean),
+        location: {
+          latitude: coordinates && coordinates.y,
+          longitude: coordinates && coordinates.x,
+        },
+      }));
+    } catch (e) {
+      logger.warn(e);
+      throw e;
+    }
+
   }
 
   async createTemplatePin(mapId, { fields, name, comment }) {
