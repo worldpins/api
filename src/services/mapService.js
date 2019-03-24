@@ -14,6 +14,18 @@ class MapService {
     this.dataController = dataController.knex;
   }
 
+  async getPublicMaps({ from, limit }) {
+    return this.dataController('maps')
+      .select('maps.id', 'maps.name', 'maps.comment', 'maps.initial_area AS initialArea', 'published')
+      .count('pins.id AS amountOfPins')
+      .groupBy('maps.id')
+      .offset(from)
+      .limit(limit)
+      .orderBy('name')
+      .where('maps.published', true)
+      .leftOuterJoin('pins', 'maps.id', 'pins.map_id');
+  }
+
   async createMap({ name, comment, initialArea = {} }, decodedToken) {
     if (!decodedToken) {
       throw new AuthenticationError('Must authenticate.');
@@ -72,7 +84,6 @@ class MapService {
       logger.warn(e);
       throw e;
     }
-
   }
 
   async uploadMap(map, decodedToken) {
@@ -135,7 +146,7 @@ class MapService {
 
     await this.dataController('maps').update('published', published).where('id', id);
 
-    return await this.getMap(id, decodedToken);
+    return this.getMap(id, decodedToken);
   }
 
   async getMaps({
