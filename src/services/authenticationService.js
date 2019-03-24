@@ -176,6 +176,7 @@ class AuthenticationService {
   async register({
     email, password, confirmPassword, profile,
   }) {
+    throw new ApolloError('Registrations  are closed!');
     if (password !== confirmPassword) {
       throw new UserInputError("password and confirmPassword don't match.");
     }
