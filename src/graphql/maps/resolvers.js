@@ -21,6 +21,9 @@ const mapResolvers = {
     uploadMap: async (obj, { map }, { token }) => mapService.uploadMap(map, token),
   },
   MutationMap: {
+    async updateMap(map, { input: mapInput }, { token }) {
+      return mapService.publishMap({ id: map.id, published: mapInput.published }, token);
+    },
     async createPin(map, { input: pin }) {
       return pinService.createPin(map.id, pin);
     },

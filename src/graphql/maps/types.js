@@ -145,9 +145,19 @@ const mapTypes = `
     id: String
   }
 
+  input updateMapInput {
+    published: Boolean
+  }
+
+  type UpdateMapPayload {
+    id: String
+    published: Boolean
+  }
+
   type MutationMap {
     id: String!
     initialArea: Location
+    updateMap(input: updateMapInput): UpdateMapPayload
     createPin(input: createPinInput): CreatePinPayload
     updatePin(input: updatePinInput): UpdatePinPayload
     createTemplatePin(input: createTemplatePinInput): CreateTemplatePinPayload
