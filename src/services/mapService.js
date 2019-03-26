@@ -14,7 +14,7 @@ class MapService {
     this.dataController = dataController.knex;
   }
 
-  async getPublicMaps({ from, limit }) {
+  async getPublicMaps({ from = 0, limit = 10 }) {
     return this.dataController('maps')
       .select('maps.id', 'maps.name', 'maps.comment', 'maps.initial_area AS initialArea', 'published')
       .count('pins.id AS amountOfPins')

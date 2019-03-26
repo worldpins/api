@@ -10,6 +10,8 @@ const mapTypes = require('./maps/types');
 const mapResolvers = require('./maps/resolvers');
 const commonTypeDefs = require('./common/types');
 const commonResolvers = require('./common/resolvers');
+const publicResolvers = require('./public/resolvers');
+const publicTypeDefs = require('./public/types');
 
 const log = makeLogger('schema');
 
@@ -23,8 +25,8 @@ const schemaTypeDefs = `
 function makeSchema() {
   log.info('Generating schema');
   return makeExecutableSchema({
-    typeDefs: [authTypes, commonTypeDefs, healthTypes, mapTypes, schemaTypeDefs],
-    resolvers: merge(authResolvers, commonResolvers, mapResolvers, healthResolvers),
+    typeDefs: [authTypes, commonTypeDefs, healthTypes, mapTypes, schemaTypeDefs, publicTypeDefs],
+    resolvers: merge(authResolvers, commonResolvers, mapResolvers, healthResolvers, publicResolvers),
   });
 }
 
