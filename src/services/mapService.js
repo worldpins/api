@@ -15,7 +15,7 @@ class MapService {
   }
 
   async getPublicMaps({ from = 0, limit = 10 }) {
-    return this.dataController('maps')
+    const result = await this.dataController('maps')
       .select('maps.id', 'maps.name', 'maps.comment', 'maps.initial_area AS initialArea', 'published')
       .count('pins.id AS amountOfPins')
       .groupBy('maps.id')
@@ -24,6 +24,7 @@ class MapService {
       .orderBy('name')
       .where('maps.published', true)
       .leftOuterJoin('pins', 'maps.id', 'pins.map_id');
+    return { items: result };
   }
 
   async createMap({ name, comment, initialArea = {} }, decodedToken) {
