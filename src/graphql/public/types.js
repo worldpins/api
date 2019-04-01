@@ -10,5 +10,6 @@ const mapParams = `
 module.exports = `
   extend type Query {
     publicMaps(${mapParams}): MapResult
+    publicMap(id: String!): Map
   }
 `;
