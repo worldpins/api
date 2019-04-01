@@ -27,6 +27,31 @@ class MapService {
     return { items: result };
   }
 
+  async getPublicMap(id) {
+    try {
+      const map = await this.dataController('maps')
+        .select('id', 'name', 'comment', 'initial_area as initialArea', 'published')
+        .where('id', id)
+        .where('published', true)
+        .first();
+
+      if (!map) {
+        throw new ApolloError(`map with id "${id}" can't be found.`, MAP_NOT_FOUND);
+      }
+
+      // Default to Brussels.
+      const { initialArea = { x: 4.34878, y: 50.85045 }, ...rest } = map;
+      let area = initialArea;
+      if (!initialArea) {
+        area = { x: 4.34878, y: 50.85045 };
+      }
+      return { ...rest, initialArea: { longitude: area.x, latitude: area.y } };
+    } catch (e) {
+      logger.warn(e);
+      throw e;
+    }
+  }
+
   async createMap({ name, comment, initialArea = {} }, decodedToken) {
     if (!decodedToken) {
       throw new AuthenticationError('Must authenticate.');
