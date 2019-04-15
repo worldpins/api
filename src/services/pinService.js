@@ -8,6 +8,66 @@ const { MAP_NOT_FOUND } = require('../constants/maps');
 // TODO: log
 const logger = makeLogger('pinService');
 
+function getMinMax(all, field) {
+  return all.reduce((acc, { data }) => {
+    const point = Number(data[field]);
+    return {
+      min: point < acc.min ? point : acc.min,
+      max: point > acc.max ? point : acc.max,
+    };
+  }, { min: 0, max: 0 });
+}
+
+function getChoiches(all, field) {
+  const choiches = new Set();
+  all.forEach(({ data }) => {
+    const point = data[field];
+    if (point) {
+      choiches.add(point);
+    }
+  });
+  return [...choiches];
+}
+
+function getRanges(all, field) {
+  const ranges = new Set();
+  all.forEach(({ data }) => {
+    const point = data[field];
+    if (point) {
+      ranges.add(point);
+    }
+  });
+  return [...ranges];
+}
+
+function deriveFilters(data, fields, allPins) {
+  const filters = {};
+  fields.forEach((templateField) => {
+    const datapoint = data[templateField];
+    // eslint-disable-next-line no-restricted-globals
+    if (!isNaN(Number(datapoint))) {
+      // Numeric
+      filters[templateField] = {
+        type: 'numeric',
+        ...getMinMax(allPins, templateField),
+      };
+    } else if (datapoint.split('-').length === 2) {
+      // Ranges
+      filters[templateField] = {
+        type: 'range',
+        ranges: getRanges(allPins, templateField),
+      };
+    } else {
+      // Checkboxes
+      filters[templateField] = {
+        type: 'choiche',
+        choiches: getChoiches(allPins, templateField),
+      };
+    }
+  });
+  return filters;
+}
+
 // const pinFields = ['id', 'name', 'coordinates', 'comment', 'data'];
 
 class MapService {
@@ -21,18 +81,26 @@ class MapService {
       .where('map_id', mapId);
   }
 
-  async getPinsForMap(mapId) {
+  async getPinsForMap(mapId, includeFilters) {
     try {
+      let filters;
       const pins = await this.dataController('pins')
         .select('pins.id', 'pins.name', 'pins.coordinates', 'pins.comment', 'pins.data', 'template_pins.fields')
         .join('template_pins', 'pins.template_pin_id', 'template_pins.id')
         .where('pins.map_id', mapId);
 
+      if (includeFilters) {
+        filters = deriveFilters(pins[0].data, pins[0].fields, pins);
+      }
 
-      return pins.map(({ coordinates, data, fields, ...rest }) => ({
+      console.log(filters);
+
+      return pins.map(({
+        coordinates, data, fields, ...rest
+      }) => ({
         ...rest,
         data,
-        orderedFields: fields.map((field) => data[field] && field).filter(Boolean),
+        orderedFields: fields.map(field => data[field] && field).filter(Boolean),
         location: {
           latitude: coordinates && coordinates.y,
           longitude: coordinates && coordinates.x,
@@ -42,7 +110,6 @@ class MapService {
       logger.warn(e);
       throw e;
     }
-
   }
 
   async createTemplatePin(mapId, { fields, name, comment }) {
