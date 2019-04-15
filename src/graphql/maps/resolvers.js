@@ -11,6 +11,9 @@ const mapResolvers = {
     async pins(map, args, { token }) {
       return pinService.getPinsForMap(map.id, token);
     },
+    async filters(map, args, { token }) {
+      return pinService.getFiltersForMap(map.id, token);
+    },
     async templatePins(map, args, { token }) {
       return pinService.getTemplatePinsForMap(map.id, token);
     },

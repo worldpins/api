@@ -81,19 +81,26 @@ class MapService {
       .where('map_id', mapId);
   }
 
-  async getPinsForMap(mapId, includeFilters) {
+  async getFiltersForMap(mapId) {
     try {
-      let filters;
+      const pins = await this.dataController('pins')
+        .select('pins.data', 'template_pins.fields')
+        .join('template_pins', 'pins.template_pin_id', 'template_pins.id')
+        .where('pins.map_id', mapId);
+
+      return deriveFilters(pins[0].data, pins[0].fields, pins);
+    } catch (e) {
+      logger.warn(e);
+      throw e;
+    }
+  }
+
+  async getPinsForMap(mapId) {
+    try {
       const pins = await this.dataController('pins')
         .select('pins.id', 'pins.name', 'pins.coordinates', 'pins.comment', 'pins.data', 'template_pins.fields')
         .join('template_pins', 'pins.template_pin_id', 'template_pins.id')
         .where('pins.map_id', mapId);
-
-      if (includeFilters) {
-        filters = deriveFilters(pins[0].data, pins[0].fields, pins);
-      }
-
-      console.log(filters);
 
       return pins.map(({
         coordinates, data, fields, ...rest

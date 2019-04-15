@@ -46,6 +46,7 @@ const mapTypes = `
     initialArea: Location
     published: Boolean
     pins: [Pin]
+    filters: JSON
     templatePins: [TemplatePin]
   }
 
