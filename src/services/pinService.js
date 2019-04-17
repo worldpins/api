@@ -5,17 +5,15 @@ const dataController = require('../data');
 const { makeLogger } = require('../utils/logger');
 const { MAP_NOT_FOUND } = require('../constants/maps');
 
-// TODO: log
 const logger = makeLogger('pinService');
 
 function getMinMax(all, field) {
-  return all.reduce((acc, { data }) => {
-    const point = Number(data[field]);
-    return {
-      min: point < acc.min ? point : acc.min,
-      max: point > acc.max ? point : acc.max,
-    };
-  }, { min: 0, max: 0 });
+  const points = all
+    .map(p => p.data[field].replace(',', '.'))
+    // eslint-disable-next-line no-restricted-globals
+    .filter(p => p !== null && p !== undefined && p !== '' && !isNaN(Number(p)));
+  const sorted = points.sort((a, b) => a - b);
+  return { min: sorted[0], max: sorted[sorted.length - 1] };
 }
 
 function getChoiches(all, field) {
@@ -23,7 +21,15 @@ function getChoiches(all, field) {
   all.forEach(({ data }) => {
     const point = data[field];
     if (point) {
-      choiches.add(point);
+      if (point.includes(',')) {
+        const c = point.split(',');
+        c.forEach((ch) => {
+          const final = ch.trim().toLowerCase();
+          if (final) choiches.add(final);
+        });
+      } else {
+        choiches.add(point.trim().replace('-', ' ').toLowerCase());
+      }
     }
   });
   return [...choiches];
@@ -40,35 +46,49 @@ function getRanges(all, field) {
   return [...ranges];
 }
 
-function deriveFilters(data, fields, allPins) {
-  const filters = {};
-  fields.forEach((templateField) => {
-    const datapoint = data[templateField];
-    // eslint-disable-next-line no-restricted-globals
-    if (!isNaN(Number(datapoint))) {
-      // Numeric
-      filters[templateField] = {
-        type: 'numeric',
-        ...getMinMax(allPins, templateField),
-      };
-    } else if (datapoint.split('-').length === 2) {
-      // Ranges
-      filters[templateField] = {
-        type: 'range',
-        ranges: getRanges(allPins, templateField),
-      };
-    } else {
-      // Checkboxes
-      filters[templateField] = {
-        type: 'choiche',
-        choiches: getChoiches(allPins, templateField),
-      };
-    }
+const EXCLUDED = ['Street', 'Zipcode'];
+function filterUselessFilters(filters) {
+  const validKeys = Object.keys(filters).filter((key) => {
+    if (filters[key].choiches && filters[key].choiches.length < 2) return false;
+    if (filters[key].ranges && filters[key].ranges.length < 2) return false;
+    if (EXCLUDED.includes(key)) return false;
+    return true;
   });
-  return filters;
+  const validFilters = validKeys.reduce((acc, key) => ({ ...acc, [key]: filters[key] }), {});
+  return validFilters;
 }
 
-// const pinFields = ['id', 'name', 'coordinates', 'comment', 'data'];
+function deriveFilters(fields, allPins) {
+  const filters = {};
+  fields.forEach((templateField) => {
+    const pinWithData = allPins.find(({ data }) => data[templateField]);
+    if (pinWithData) {
+      const datapoint = pinWithData.data[templateField];
+      // eslint-disable-next-line no-restricted-globals
+      if (!isNaN(Number(datapoint.replace(',', '.')))) {
+      // Numeric
+        filters[templateField] = {
+          type: 'numeric',
+          ...getMinMax(allPins, templateField),
+        };
+      // eslint-disable-next-line no-restricted-globals
+      } else if (datapoint.split('-').length === 2 && !isNaN(Number(datapoint.split('-')[0].replace(',', '.')))) {
+        // Ranges
+        filters[templateField] = {
+          type: 'range',
+          ranges: getRanges(allPins, templateField),
+        };
+      } else {
+        // Checkboxes
+        filters[templateField] = {
+          type: 'choiche',
+          choiches: getChoiches(allPins, templateField),
+        };
+      }
+    }
+  });
+  return filterUselessFilters(filters);
+}
 
 class MapService {
   constructor() {
@@ -88,7 +108,7 @@ class MapService {
         .join('template_pins', 'pins.template_pin_id', 'template_pins.id')
         .where('pins.map_id', mapId);
 
-      return deriveFilters(pins[0].data, pins[0].fields, pins);
+      return deriveFilters(pins[0].fields, pins);
     } catch (e) {
       logger.warn(e);
       throw e;
