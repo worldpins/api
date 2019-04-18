@@ -53,6 +53,7 @@ function filterUselessFilters(filters) {
     return true;
   });
   const validFilters = validKeys.reduce((acc, key) => ({ ...acc, [key]: filters[key] }), {});
+  validFilters['Age range'] = { min: 0, max: 100 };
   return validFilters;
 }
 
