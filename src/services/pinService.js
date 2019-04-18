@@ -39,17 +39,15 @@ function getRanges(all, field) {
   const ranges = new Set();
   all.forEach(({ data }) => {
     const point = data[field];
-    if (point) {
-      ranges.add(point);
-    }
+    if (point) ranges.add(point);
   });
   return [...ranges];
 }
 
-const EXCLUDED = ['Street', 'Zipcode'];
+const EXCLUDED = ['Age range', 'Street', 'Zipcode'];
 function filterUselessFilters(filters) {
   const validKeys = Object.keys(filters).filter((key) => {
-    if (filters[key].choiches && filters[key].choiches.length < 2) return false;
+    if (filters[key].choices && filters[key].choices.length < 2) return false;
     if (filters[key].ranges && filters[key].ranges.length < 2) return false;
     if (EXCLUDED.includes(key)) return false;
     return true;
@@ -81,8 +79,8 @@ function deriveFilters(fields, allPins) {
       } else {
         // Checkboxes
         filters[templateField] = {
-          type: 'choiche',
-          choiches: getChoiches(allPins, templateField),
+          type: 'choice',
+          choices: getChoiches(allPins, templateField),
         };
       }
     }
