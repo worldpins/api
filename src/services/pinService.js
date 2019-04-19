@@ -44,7 +44,7 @@ function getRanges(all, field) {
   return [...ranges];
 }
 
-const EXCLUDED = ['Age range', 'Street', 'Zipcode'];
+const EXCLUDED = ['Street', 'Zipcode'];
 function filterUselessFilters(filters) {
   const validKeys = Object.keys(filters).filter((key) => {
     if (filters[key].choices && filters[key].choices.length < 2) return false;
@@ -53,7 +53,7 @@ function filterUselessFilters(filters) {
     return true;
   });
   const validFilters = validKeys.reduce((acc, key) => ({ ...acc, [key]: filters[key] }), {});
-  validFilters['Age range'] = { min: 0, max: 100 };
+  validFilters['Age range'] = { type: 'numeric', min: 0, max: 100 };
   return validFilters;
 }
 
