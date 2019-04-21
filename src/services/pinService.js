@@ -24,11 +24,11 @@ function getChoiches(all, field) {
       if (point.includes(',')) {
         const c = point.split(',');
         c.forEach((ch) => {
-          const final = ch.trim().toLowerCase();
+          const final = ch.trim();
           if (final) choiches.add(final);
         });
       } else {
-        choiches.add(point.trim().replace('-', ' ').toLowerCase());
+        choiches.add(point.trim().replace('-', ' '));
       }
     }
   });
@@ -44,12 +44,13 @@ function getRanges(all, field) {
   return [...ranges];
 }
 
-const EXCLUDED = ['Street', 'Zipcode'];
+const EXCLUDED = ['Explanation', 'Street', 'Zipcode', 'Density'];
 function filterUselessFilters(filters) {
   const validKeys = Object.keys(filters).filter((key) => {
     if (filters[key].choices && filters[key].choices.length < 2) return false;
     if (filters[key].ranges && filters[key].ranges.length < 2) return false;
     if (EXCLUDED.includes(key)) return false;
+    if (filters[key].choiches) filters[key].choiches.sort((a, b) => a -b);
     return true;
   });
   const validFilters = validKeys.reduce((acc, key) => ({ ...acc, [key]: filters[key] }), {});
