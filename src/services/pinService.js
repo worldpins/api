@@ -16,6 +16,13 @@ function getMinMax(all, field) {
   return { min: sorted[0], max: sorted[sorted.length - 1] };
 }
 
+function stripBraces(point) {
+  if (point.includes('(') && point.includes(')')) {
+    return point.split('(')[0].trim();
+  }
+  return point;
+}
+
 function getChoiches(all, field) {
   const choiches = new Set();
   all.forEach(({ data }) => {
@@ -24,11 +31,12 @@ function getChoiches(all, field) {
       if (point.includes(',')) {
         const c = point.split(',');
         c.forEach((ch) => {
-          const final = ch.trim();
+          const final = stripBraces(ch);
           if (final) choiches.add(final);
         });
       } else {
-        choiches.add(point.trim().replace('-', ' '));
+        const final = stripBraces(point);
+        choiches.add(final.replace('-', ' '));
       }
     }
   });
@@ -50,7 +58,7 @@ function filterUselessFilters(filters) {
     if (filters[key].choices && filters[key].choices.length < 2) return false;
     if (filters[key].ranges && filters[key].ranges.length < 2) return false;
     if (EXCLUDED.includes(key)) return false;
-    if (filters[key].choiches) filters[key].choiches.sort((a, b) => a -b);
+    if (filters[key].choiches) filters[key].choiches.sort((a, b) => a - b);
     return true;
   });
   const validFilters = validKeys.reduce((acc, key) => ({ ...acc, [key]: filters[key] }), {});
