@@ -32,11 +32,11 @@ function getChoiches(all, field) {
         const c = point.split(',');
         c.forEach((ch) => {
           const final = stripBraces(ch);
-          if (final) choiches.add(final);
+          if (final) choiches.add(final.trim());
         });
       } else {
         const final = stripBraces(point);
-        choiches.add(final.replace('-', ' '));
+        choiches.add(final.trim());
       }
     }
   });
@@ -58,11 +58,15 @@ function filterUselessFilters(filters) {
     if (filters[key].choices && filters[key].choices.length < 2) return false;
     if (filters[key].ranges && filters[key].ranges.length < 2) return false;
     if (EXCLUDED.includes(key)) return false;
-    if (filters[key].choiches) filters[key].choiches.sort((a, b) => a - b);
     return true;
   });
   const validFilters = validKeys.reduce((acc, key) => ({ ...acc, [key]: filters[key] }), {});
   validFilters['Age range'] = { type: 'numeric', min: 0, max: 100 };
+  Object.keys(validFilters).forEach((key) => {
+    if (validFilters[key].choices) {
+      validFilters[key].choices.sort((a, b) => a.localeCompare(b));
+    }
+  });
   return validFilters;
 }
 
