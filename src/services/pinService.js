@@ -18,7 +18,7 @@ function getMinMax(all, field) {
 
 function stripBraces(point) {
   if (point.includes('(') && point.includes(')')) {
-    return point.split('(')[0].trim();
+    return point.split('(')[0];
   }
   return point;
 }
@@ -26,8 +26,9 @@ function stripBraces(point) {
 function getChoiches(all, field) {
   const choiches = new Set();
   all.forEach(({ data }) => {
-    const point = data[field];
+    let point = data[field];
     if (point) {
+      point = stripBraces(point);
       if (point.includes(',')) {
         const c = point.split(',');
         c.forEach((ch) => {
