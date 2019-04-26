@@ -24,6 +24,9 @@ const mapResolvers = {
     uploadMap: async (obj, { map }, { token }) => mapService.uploadMap(map, token),
   },
   MutationMap: {
+    async delete({ id }, args, { token }) {
+      return mapService.deleteMap(id, token);
+    },
     async updateMap(map, { input: mapInput }, { token }) {
       return mapService.publishMap({ id: map.id, published: mapInput.published }, token);
     },

@@ -157,6 +157,7 @@ const mapTypes = `
 
   type MutationMap {
     id: String!
+    delete: Boolean
     initialArea: Location
     updateMap(input: updateMapInput): UpdateMapPayload
     createPin(input: createPinInput): CreatePinPayload
