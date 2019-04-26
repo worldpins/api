@@ -52,6 +52,29 @@ class MapService {
     }
   }
 
+  async deleteMap(id, decodedToken) {
+    if (!decodedToken) {
+      throw new AuthenticationError('Must authenticate.');
+    }
+
+    await this.dataController.transaction(async (trx) => {
+      const map = await trx('maps')
+        .select('id', 'name', 'comment', 'initial_area as initialArea', 'published')
+        .where('id', id)
+        .first();
+
+      if (!map) {
+        throw new ApolloError(`map with id "${id}" can't be found.`, MAP_NOT_FOUND);
+      }
+
+      await trx('pins').del().where('map_id', id);
+      await trx('template_pins').del().where('map_id', id);
+      await trx('userHasMaps').del().where('map_id', id);
+      await trx('maps').del().where('id', id);
+    });
+    return true;
+  }
+
   async createMap({ name, comment, initialArea = {} }, decodedToken) {
     if (!decodedToken) {
       throw new AuthenticationError('Must authenticate.');
