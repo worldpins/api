@@ -41,7 +41,7 @@
     "koa-helmet": "4.1.0",
     "koa-qs": "2.0.0",
     "lodash.merge": "4.6.2",
-    "log4js": "^3.0.5",
+    "log4js": "^6.4.0",
     "node-fetch": "^2.2.0",
     "pg": "^7.4.3",
     "serialize-error": "^2.1.0",
