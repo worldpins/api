@@ -34,7 +34,7 @@
     "graphql-tools": "4.0.4",
     "graphql-type-json": "0.3.0",
     "jsonwebtoken": "^8.3.0",
-    "knex": "^0.19.5",
+    "knex": "^2.4.0",
     "koa-bodyparser": "4.2.1",
     "koa-convert": "1.2.0",
     "koa-cors": "0.0.16",
